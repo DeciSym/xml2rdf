@@ -15,11 +15,10 @@ use const_format::concatcp;
 use oxrdf::vocab::rdf::TYPE;
 use oxrdf::vocab::rdfs::SUB_CLASS_OF;
 use oxrdf::{Literal, NamedNode, NamedNodeRef, TermRef, TripleRef};
-use std::fs::File;
-use std::fs::OpenOptions;
-use std::io::{BufWriter, Write};
 use uuid::Uuid;
 use xml::reader::{EventReader, XmlEvent};
+
+use crate::writer::RdfWriter;
 
 #[derive(Debug, Clone)]
 struct Node {
@@ -45,26 +44,26 @@ const HAS_VALUE: NamedNodeRef<'_> = NamedNodeRef::new_unchecked(concatcp!(X2R, "
 /// # Arguments
 /// - `files`: Path to the XML file.
 /// - `namespace`: Optional custom namespace for RDF predicates.
-/// - `output_file`: Optional output file path for writing RDF data. Output will be created if it does not exist or appended if already exists
+/// - `output`: use RdfWriter trait to add generated triples to desired format (File or Graph)
 ///
 /// # Example
 /// ```rust
-/// use convert::parse_xml;
+/// use xml2rdf::convert::parse_xml;
+/// use xml2rdf::writer;
+/// use oxrdf::Graph;
 ///
-/// parse_xml(Vec<"data.xml".to_string()>, Some("output.nt"), "https://decisym.ai/xml2rdf/data");
+/// let mut w = writer::FileWriter::new("output.nt".to_string()).unwrap();
+/// parse_xml(vec!["data.xml".to_string()], &mut w, "https://decisym.ai/xml2rdf/data");
+///
+/// let mut g = Graph::new();
+/// let mut w = writer::GraphWriter::new(&mut g);
+/// parse_xml(vec!["data.xml".to_string()], &mut w, "https://decisym.ai/xml2rdf/data");
 /// ```
 pub fn parse_xml(
     files: Vec<String>,
-    output_path: Option<String>,
+    output: &mut dyn RdfWriter,
     namespace: &str,
 ) -> std::io::Result<()> {
-    // Open output file for writing triples
-    let file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(output_path.unwrap())?;
-    let mut writer = BufWriter::new(file);
-
     for file in files.into_iter() {
         // Initialize XML parser
         let file = std::fs::File::open(file)?;
@@ -93,31 +92,31 @@ pub fn parse_xml(
 
                     if let Some(ref s) = subject {
                         if let Some(parent) = stack.last_mut() {
-                            write_triple(
-                                TripleRef::new(parent.id.as_ref(), HAS_CHILD, s.id.as_ref()),
-                                writer.by_ref(),
-                            )?;
+                            output.add_triple(TripleRef::new(
+                                parent.id.as_ref(),
+                                HAS_CHILD,
+                                s.id.as_ref(),
+                            ))?;
                         }
                         let object = Literal::new_simple_literal(s.path.clone());
-                        write_triple(
-                            TripleRef::new(s.id.as_ref(), TYPE, TermRef::Literal(object.as_ref())),
-                            writer.by_ref(),
-                        )?;
+                        output.add_triple(TripleRef::new(
+                            s.id.as_ref(),
+                            TYPE,
+                            TermRef::Literal(object.as_ref()),
+                        ))?;
 
                         let object = Literal::new_simple_literal(name.local_name.clone());
-                        write_triple(
-                            TripleRef::new(
-                                s.id.as_ref(),
-                                HAS_NAME,
-                                TermRef::Literal(object.as_ref()),
-                            ),
-                            writer.by_ref(),
-                        )?;
+                        output.add_triple(TripleRef::new(
+                            s.id.as_ref(),
+                            HAS_NAME,
+                            TermRef::Literal(object.as_ref()),
+                        ))?;
 
-                        write_triple(
-                            TripleRef::new(s.id.as_ref(), SUB_CLASS_OF, XML_ELEMENT),
-                            writer.by_ref(),
-                        )?;
+                        output.add_triple(TripleRef::new(
+                            s.id.as_ref(),
+                            SUB_CLASS_OF,
+                            XML_ELEMENT,
+                        ))?;
 
                         stack.push(s.clone());
                     }
@@ -131,33 +130,33 @@ pub fn parse_xml(
                             let attr_subject =
                                 NamedNode::new(format!("{}/{}", namespace, attrib_id)).unwrap();
 
-                            write_triple(
-                                TripleRef::new(s.id.as_ref(), HAS_ATTRIBUTE, attr_subject.as_ref()),
-                                writer.by_ref(),
-                            )?;
+                            output.add_triple(TripleRef::new(
+                                s.id.as_ref(),
+                                HAS_ATTRIBUTE,
+                                attr_subject.as_ref(),
+                            ))?;
 
                             let attr_object = NamedNode::new(path).unwrap();
-                            write_triple(
-                                TripleRef::new(attr_subject.as_ref(), TYPE, attr_object.as_ref()),
-                                writer.by_ref(),
-                            )?;
+                            output.add_triple(TripleRef::new(
+                                attr_subject.as_ref(),
+                                TYPE,
+                                attr_object.as_ref(),
+                            ))?;
 
-                            write_triple(
-                                TripleRef::new(attr_object.as_ref(), SUB_CLASS_OF, XML_ATTRIBUTE),
-                                writer.by_ref(),
-                            )?;
+                            output.add_triple(TripleRef::new(
+                                attr_object.as_ref(),
+                                SUB_CLASS_OF,
+                                XML_ATTRIBUTE,
+                            ))?;
 
                             if attr.value != "" {
                                 let attr_object = Literal::new_simple_literal(&attr.value);
 
-                                write_triple(
-                                    TripleRef::new(
-                                        attr_subject.as_ref(),
-                                        HAS_VALUE,
-                                        TermRef::Literal(attr_object.as_ref()),
-                                    ),
-                                    writer.by_ref(),
-                                )?;
+                                output.add_triple(TripleRef::new(
+                                    attr_subject.as_ref(),
+                                    HAS_VALUE,
+                                    TermRef::Literal(attr_object.as_ref()),
+                                ))?;
                             } else {
                                 print!("warning skipping empty attribute value?")
                             }
@@ -170,14 +169,11 @@ pub fn parse_xml(
                     if !text.is_empty() {
                         if let Some(ref s) = subject {
                             let content_object = Literal::new_simple_literal(text);
-                            write_triple(
-                                TripleRef::new(
-                                    s.id.as_ref(),
-                                    HAS_VALUE,
-                                    TermRef::Literal(content_object.as_ref()),
-                                ),
-                                writer.by_ref(),
-                            )?;
+                            output.add_triple(TripleRef::new(
+                                s.id.as_ref(),
+                                HAS_VALUE,
+                                TermRef::Literal(content_object.as_ref()),
+                            ))?;
                         }
                     }
                 }
@@ -190,12 +186,5 @@ pub fn parse_xml(
         }
     }
 
-    writer.flush()?; // Ensure all data is written to the file
-    Ok(())
-}
-
-fn write_triple(triple: TripleRef, writer: &mut BufWriter<File>) -> std::io::Result<()> {
-    writer.write_all(triple.to_string().as_bytes())?;
-    writer.write_all(b" .\n")?;
     Ok(())
 }

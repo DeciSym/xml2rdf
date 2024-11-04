@@ -22,7 +22,7 @@
 //! This will take `data.xml`, apply the specified namespace, and save the RDF output in `output.nt`.
 
 use clap::{Parser, Subcommand};
-use xml2rdf::convert;
+use xml2rdf::*;
 
 /// Command-line interface for XML2RDF Converter
 ///
@@ -61,7 +61,7 @@ enum Commands {
         ///
         /// Optional: Specify the path to save the generated RDF data.
         #[arg(short, long)]
-        output_file: Option<String>,
+        output_file: String,
     },
 }
 
@@ -73,12 +73,21 @@ fn main() {
             namespace,
             xml,
             output_file,
-        }) => match convert::parse_xml(xml.clone(), output_file.clone(), namespace) {
+        }) => {
+            let mut w= match writer::FileWriter::new(output_file.clone()) {
+                Err(e) => { 
+                    eprintln!("Error opening file for writing: {e}");
+                    return;
+                },
+                Ok(v) => v,
+            };
+            match convert::parse_xml(xml.clone(), &mut w, namespace) {
             Ok(_) => {
                 println!("Complete")
             }
             Err(e) => eprintln!("Error writing: {}", e),
-        },
+        }
+    },
         None => {}
     }
 }
