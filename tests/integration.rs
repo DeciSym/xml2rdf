@@ -24,7 +24,7 @@ fn test_file_writer() {
     let output = "out.nt".to_string();
     let _ = fs::remove_file(output.clone());
 
-    let mut w = writer::FileWriter::new(output.clone()).expect("Failed to open output file");
+    let mut w = writer::FileWriter::to_file(output.clone()).expect("Failed to open output file");
 
     let res = convert::parse_xml(
         vec!["tests/resources/people.xml".to_string()],

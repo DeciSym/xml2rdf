@@ -52,7 +52,7 @@ const HAS_VALUE: NamedNodeRef<'_> = NamedNodeRef::new_unchecked(concatcp!(X2R, "
 /// use xml2rdf::writer;
 /// use oxrdf::Graph;
 ///
-/// let mut w = writer::FileWriter::new("output.nt".to_string()).unwrap();
+/// let mut w = writer::FileWriter::to_file("output.nt".to_string()).unwrap();
 /// parse_xml(vec!["data.xml".to_string()], &mut w, "https://decisym.ai/xml2rdf/data");
 ///
 /// let mut g = Graph::new();
@@ -65,7 +65,6 @@ pub fn parse_xml(
     namespace: &str,
 ) -> std::io::Result<()> {
     for file in files.into_iter() {
-        // Initialize XML parser
         let file = std::fs::File::open(file)?;
         let file_reader = std::io::BufReader::new(file);
         let parser = EventReader::new(file_reader);
@@ -158,14 +157,14 @@ pub fn parse_xml(
                                     TermRef::Literal(attr_object.as_ref()),
                                 ))?;
                             } else {
-                                print!("warning skipping empty attribute value?")
+                                // TODO any edgecases that need to be addressed here?
                             }
                         }
                     }
                 }
                 Ok(XmlEvent::Characters(text)) => {
-                    // Handle text content within the current element
-                    let text = text.trim(); // Strip unnecessary whitespace
+                    // Strip unnecessary whitespace
+                    let text = text.trim();
                     if !text.is_empty() {
                         if let Some(ref s) = subject {
                             let content_object = Literal::new_simple_literal(text);
@@ -179,7 +178,7 @@ pub fn parse_xml(
                 }
                 Ok(XmlEvent::EndElement { .. }) => {
                     stack.pop();
-                    subject = None; // Clear the subject when the element ends
+                    subject = None;
                 }
                 _ => {}
             }

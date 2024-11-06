@@ -6,7 +6,7 @@
 //! ## Features
 //! - Parses XML input and converts it to RDF triples
 //! - Supports specifying a custom namespace for generated RDF nodes
-//! - Outputs RDF data to a specified file
+//! - Outputs RDF data to a specified file, oxrdf::Graph or stdout
 //!
 //! ## Usage
 //! Run the XML2RDF converter from the command line. For detailed usage information, run:
@@ -17,7 +17,7 @@
 //! ## Example
 //! To convert a XML file to RDF format with a specified namespace and output file:
 //! ```
-//! xml2rdf convert --namespace http://example.com/ns# --xml-files data.xml --output-file output.nt
+//! xml2rdf convert --namespace http://example.com/ns# --xml data.xml --output-file output.nt
 //! ```
 //! This will take `data.xml`, apply the specified namespace, and save the RDF output in `output.nt`.
 
@@ -59,9 +59,10 @@ enum Commands {
 
         /// Path to output file.
         ///
-        /// Optional: Specify the path to save the generated RDF data.
+        /// Optional: Specify the path to save the generated RDF data. If not provided, data will be written
+        /// to stdout
         #[arg(short, long)]
-        output_file: String,
+        output_file: Option<String>,
     },
 }
 
@@ -74,20 +75,23 @@ fn main() {
             xml,
             output_file,
         }) => {
-            let mut w= match writer::FileWriter::new(output_file.clone()) {
-                Err(e) => { 
-                    eprintln!("Error opening file for writing: {e}");
-                    return;
-                },
-                Ok(v) => v,
+            let mut w: Box<dyn writer::RdfWriter> = if let Some(file) = output_file {
+                match writer::FileWriter::to_file(file.clone()) {
+                    Err(e) => {
+                        eprintln!("Error opening file for writing: {e}");
+                        return;
+                    }
+                    Ok(v) => Box::new(v),
+                }
+            } else {
+                Box::new(writer::FileWriter::to_stdout())
             };
-            match convert::parse_xml(xml.clone(), &mut w, namespace) {
-            Ok(_) => {
-                println!("Complete")
+
+            match convert::parse_xml(xml.clone(), w.as_mut(), namespace) {
+                Ok(_) => {}
+                Err(e) => eprintln!("Error writing: {}", e),
             }
-            Err(e) => eprintln!("Error writing: {}", e),
         }
-    },
         None => {}
     }
 }
