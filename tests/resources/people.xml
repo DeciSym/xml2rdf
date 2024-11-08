@@ -1,0 +1,61 @@
+<People>
+    <Person>
+        <firstName>Avery</firstName>
+        <lastName>Dimuccio</lastName>
+        <gender>M</gender>
+        <birthDate>2017-06-03T00:00:00.000Z</birthDate>
+        <italianFiscalCode>DMCVRY17H03Z104M</italianFiscalCode>
+        <city>Mikrevo</city>
+        <address>Tryavna, 184</address>
+        <phone>+359 47205505285</phone>
+        <email>avery.dimuccio@levele.com</email>
+        <country>[object Object]</country>
+    </Person>
+    <Person>
+        <firstName>Jeffrey</firstName>
+        <lastName>Schill</lastName>
+        <gender>M</gender>
+        <birthDate>2013-08-06T00:00:00.000Z</birthDate>
+        <italianFiscalCode>SCHJFR13M06Z226X</italianFiscalCode>
+        <city>Ofaqim</city>
+        <address>Qiryat Ata, 181</address>
+        <phone>+972 50473757</phone>
+        <email>jeffrey.schill@mail2valentines.com</email>
+        <country>[object Object]</country>
+    </Person>
+    <Person>
+        <firstName>Lucinda</firstName>
+        <lastName>Ewan</lastName>
+        <gender>M</gender>
+        <birthDate>1906-04-25T00:00:00.000Z</birthDate>
+        <italianFiscalCode>WNELND06D25Z400M</italianFiscalCode>
+        <city>Backo Gradiste</city>
+        <address>Umcari, 23</address>
+        <phone>+381 8186745124686</phone>
+        <email>lucinda.ewan@ummah.org</email>
+        <country>[object Object]</country>
+    </Person>
+    <Person>
+        <firstName>Derick</firstName>
+        <lastName>Lessner</lastName>
+        <gender>M</gender>
+        <birthDate>1991-03-17T00:00:00.000Z</birthDate>
+        <italianFiscalCode>LSSDCK91C17Z342I</italianFiscalCode>
+        <city>Victoria</city>
+        <address>Grand Bourg, 64</address>
+        <phone>+248 60283307025</phone>
+        <email>derick.lessner@jetemail.net</email>
+        <country>[object Object]</country>
+    </Person>
+    <Person>
+        <firstName>Eunice</firstName>
+        <lastName>Schrantz</lastName>
+        <gender>M</gender>
+        <birthDate>1978-08-16T00:00:00.000Z</birthDate>
+        <italianFiscalCode>SCHNCE78M16Z102M</italianFiscalCode>
+        <city>Keutschach am See</city>
+        <address>Volders, 231</address>
+        <phone>+43 52773222</phone>
+        <email>eunice.schrantz@imail.org</email>
+        <country>[object Object]</country>
+    </Person>
