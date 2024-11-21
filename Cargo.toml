@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.5.20", features = ["derive"] }
+clap = { version = "4.5.21", features = ["derive"] }
 const_format = "0.2.33"
-oxrdf = "0.2.2"
-oxrdfio = "0.1.2"
+oxrdf = "0.2.3"
+oxrdfio = "0.1.3"
 uuid = { version = "1.11.0", features = ["v4", "fast-rng", "macro-diagnostics"] }
-xml-rs = "0.8.22"
+xml-rs = "0.8.23"
