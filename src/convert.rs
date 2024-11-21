@@ -97,12 +97,8 @@ pub fn parse_xml(
                                 s.id.as_ref(),
                             ))?;
                         }
-                        let object = Literal::new_simple_literal(s.path.clone());
-                        output.add_triple(TripleRef::new(
-                            s.id.as_ref(),
-                            TYPE,
-                            TermRef::Literal(object.as_ref()),
-                        ))?;
+                        let object = NamedNode::new(&s.path).unwrap();
+                        output.add_triple(TripleRef::new(s.id.as_ref(), TYPE, object.as_ref()))?;
 
                         let object = Literal::new_simple_literal(name.local_name.clone());
                         output.add_triple(TripleRef::new(
