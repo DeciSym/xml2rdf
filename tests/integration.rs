@@ -1,7 +1,5 @@
-/*
- * Copyright (c) 2024-2025, Decisym, LLC
- * Licensed under the BSD 3-Clause License (see LICENSE file in the project root).
- */
+// Copyright (c) 2024-2025, Decisym, LLC
+// Licensed under the BSD 3-Clause License (see LICENSE file in the project root).
 
 use oxrdf::Graph;
 use oxrdfio::{RdfFormat, RdfParser};

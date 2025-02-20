@@ -8,7 +8,7 @@ description = "Library for converting an XML file to N-Triple RDF"
 repository = "https://github.com/DeciSym/xml2rdf"
 readme = "README.md"
 keywords = ["xml", "rdf", "n-triples", "semantic-web", "converter", "parser"]
-categories = ["encoding", "parser-implementations", "science", "web-programming"]
+categories = ["command-line-utilities", "encoding", "parser-implementations", "science", "web-programming"]
 
 [dependencies]
 clap = { version = "4.5.30", features = ["derive"] }
