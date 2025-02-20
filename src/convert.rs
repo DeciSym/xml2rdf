@@ -26,7 +26,7 @@ struct Node {
     id: NamedNode,
 }
 
-const X2R: &'static str = "https://decisym.ai/xml2rdf/model#";
+const X2R: &str = "https://decisym.ai/xml2rdf/model#";
 
 const XML_ELEMENT: NamedNodeRef<'_> = NamedNodeRef::new_unchecked(concatcp!(X2R, "XmlNode"));
 const XML_ATTRIBUTE: NamedNodeRef<'_> = NamedNodeRef::new_unchecked(concatcp!(X2R, "XmlAttribute"));
@@ -144,7 +144,7 @@ pub fn parse_xml(
                                 XML_ATTRIBUTE,
                             ))?;
 
-                            if attr.value != "" {
+                            if !attr.value.is_empty() {
                                 let attr_object = Literal::new_simple_literal(&attr.value);
 
                                 output.add_triple(TripleRef::new(
