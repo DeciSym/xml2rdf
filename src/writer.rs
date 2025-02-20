@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024-2025, Decisym, LLC
+ * Licensed under the BSD 3-Clause License (see LICENSE file in the project root).
+ */
+
 //! # XML2RDF Writer Library
 //!
 //! This library provides functionality for writing covnerted XML2RDF data.
