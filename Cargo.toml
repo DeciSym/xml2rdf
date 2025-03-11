@@ -11,12 +11,12 @@ keywords = ["xml", "rdf", "semantic-web", "converter", "parser"]
 categories = ["command-line-utilities", "encoding", "parser-implementations", "science", "web-programming"]
 
 [dependencies]
-clap = { version = "4.5.30", features = ["derive"] }
-const_format = "0.2.34"
-oxrdf = "0.2.4"
-oxrdfio = "0.1.6"
-uuid = { version = "1.13.2", features = ["v4", "fast-rng", "macro-diagnostics"] }
-xml-rs = "0.8.25"
+clap = { version = "4.5", features = ["derive"] }
+const_format = "0.2"
+oxrdf = "0.2"
+oxrdfio = "0.1"
+uuid = { version = "1.15", features = ["v4", "fast-rng", "macro-diagnostics"] }
+xml-rs = "0.8"
 
 [package.metadata.cargo-machete]
 ignored = ["xml-rs"]
